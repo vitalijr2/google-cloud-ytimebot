@@ -1,5 +1,9 @@
 # YouTube Time Bot (ytimebot), Google Cloud Function
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e488e0a7b434d30a91c4d9cdfaa8328)](https://app.codacy.com/gh/vitalijr2/google-cloud-ytimebot/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Coverage](https://app.codacy.com/project/badge/Coverage/7e488e0a7b434d30a91c4d9cdfaa8328)](https://app.codacy.com/gh/vitalijr2/google-cloud-ytimebot/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+[![Java Version](https://img.shields.io/static/v1?label=java&message=11&color=blue&logo=java&logoColor=E23D28)](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+
 ## License
 
 Copyright 2022-2024 Vitalij Berdinskih
