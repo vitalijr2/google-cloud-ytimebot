@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import org.json.JSONException;
 import org.json.JSONTokener;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -38,12 +35,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("slow")
-class YTimeBotSlowTest {
+class TelegramBotFunctionSlowTest {
 
   @Mock
   private HttpRequest httpRequest;
@@ -52,11 +47,11 @@ class YTimeBotSlowTest {
   @Mock
   private BufferedWriter writer;
 
-  private YTimeBot bot;
+  private TelegramBotFunction bot;
 
   @BeforeEach
   void setUp() {
-    bot = new YTimeBot();
+    bot = new TelegramBotFunction();
   }
 
   @DisplayName("HTTP method not allowed")

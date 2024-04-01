@@ -8,8 +8,6 @@ import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +15,7 @@ import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class YTimeBot implements HttpFunction {
+public class TelegramBotFunction implements HttpFunction {
 
   private static final String HTTP_POST_METHOD = "POST";
 

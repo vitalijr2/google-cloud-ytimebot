@@ -25,7 +25,7 @@ class BotTools {
     var name = "unknown";
     var version = "unknown";
 
-    try (InputStream versionPropsStream = YTimeBot.class.getResourceAsStream(
+    try (InputStream versionPropsStream = TelegramBotFunction.class.getResourceAsStream(
         "/ytimebot.properties")) {
       var properties = new Properties();
 
@@ -34,7 +34,7 @@ class BotTools {
       name = properties.getProperty("bot.name");
       version = properties.getProperty("bot.version");
     } catch (Exception exception) {
-      LoggerFactory.getLogger(YTimeBot.class)
+      LoggerFactory.getLogger(TelegramBotFunction.class)
           .error("Could not initialize the bot: {}", exception.getMessage());
       System.exit(1);
     }

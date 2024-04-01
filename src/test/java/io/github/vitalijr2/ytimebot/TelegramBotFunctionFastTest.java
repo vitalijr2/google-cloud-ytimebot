@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("fast")
-class YTimeBotFastTest {
+class TelegramBotFunctionFastTest {
 
   private static Logger logger;
 
@@ -48,11 +48,11 @@ class YTimeBotFastTest {
   @Mock
   private BufferedWriter writer;
 
-  private YTimeBot bot;
+  private TelegramBotFunction bot;
 
   @BeforeAll
   static void setUpClass() {
-    logger = LoggerFactory.getLogger(YTimeBot.class);
+    logger = LoggerFactory.getLogger(TelegramBotFunction.class);
   }
 
   @AfterEach
@@ -62,7 +62,7 @@ class YTimeBotFastTest {
 
   @BeforeEach
   void setUp() {
-    bot = new YTimeBot();
+    bot = new TelegramBotFunction();
   }
 
   @DisplayName("Webhook")

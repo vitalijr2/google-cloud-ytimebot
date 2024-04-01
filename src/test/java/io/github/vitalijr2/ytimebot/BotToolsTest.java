@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 @Tag("fast")
 class BotToolsTest {
 
+  private static Logger logger;
+
   @Mock
   private HttpResponse httpResponse;
-
-  private static Logger logger;
 
   @BeforeAll
   static void setUpClass() {
