@@ -1,12 +1,15 @@
 package io.github.vitalijr2.ytimebot;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -19,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.CharArrayReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import org.json.JSONException;
 import org.json.JSONTokener;
@@ -37,10 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ExtendWith(MockitoExtension.class)
-@Tag("fast")
-class YTimeBotTest {
-
-  private static Logger logger;
+@Tag("slow")
+class YTimeBotSlowTest {
 
   @Mock
   private HttpRequest httpRequest;
@@ -51,38 +54,9 @@ class YTimeBotTest {
 
   private YTimeBot bot;
 
-  @BeforeAll
-  static void setUpClass() {
-    logger = LoggerFactory.getLogger(YTimeBot.class);
-  }
-
-  @AfterEach
-  void tearDown() {
-    clearInvocations(logger);
-  }
-
   @BeforeEach
   void setUp() {
     bot = new YTimeBot();
-  }
-
-  @DisplayName("Webhook")
-  @Test
-  void webhook() throws IOException {
-    // given
-    var reader = new CharArrayReader("{\"a\":\"b\"}".toCharArray());
-
-    bot = spy(bot);
-
-    when(httpRequest.getMethod()).thenReturn("POST");
-    when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
-    doNothing().when(bot).processRequest(isA(JSONTokener.class));
-
-    // when
-    assertDoesNotThrow(() -> bot.service(httpRequest, httpResponse));
-
-    // then
-    verify(bot).processRequest(isA(JSONTokener.class));
   }
 
   @DisplayName("HTTP method not allowed")
@@ -90,8 +64,11 @@ class YTimeBotTest {
   @ValueSource(strings = {"GET", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"})
   void methodNotAllowed(String methodName) throws IOException {
     // given
+    var headers = new HashMap<String, List<String>>();
+
     when(httpRequest.getMethod()).thenReturn(methodName);
     when(httpRequest.getFirstHeader(anyString())).thenReturn(Optional.of("1.2.3.4"));
+    when(httpResponse.getHeaders()).thenReturn(headers);
     when(httpResponse.getWriter()).thenReturn(writer);
 
     // when
@@ -99,13 +76,12 @@ class YTimeBotTest {
 
     // then
     verify(httpResponse).setStatusCode(405, "Method Not Allowed");
-    verify(httpResponse).appendHeader("Allow", "POST");
     verify(httpResponse).appendHeader(eq("Server"), anyString());
     verify(httpResponse).getWriter();
     verifyNoMoreInteractions(httpResponse);
     verify(writer).write(startsWith("<!doctype html>"));
 
-    verify(logger).warn(eq("Method {} isn't implemented: {}"), eq(methodName), eq("1.2.3.4"));
+    assertThat("", headers, hasEntry(equalTo("Allow"), contains("POST")));
   }
 
   @DisplayName("Bad request body")
@@ -127,8 +103,6 @@ class YTimeBotTest {
     verify(httpResponse).setStatusCode(500, "Internal Server Error");
     verify(httpResponse).appendHeader(eq("Server"), anyString());
     verifyNoMoreInteractions(httpResponse);
-
-    verify(logger).warn("Could not parse request body: {}", "test exception");
   }
 
 }
