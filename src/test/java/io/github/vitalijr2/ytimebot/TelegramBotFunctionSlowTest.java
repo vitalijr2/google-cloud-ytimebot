@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -21,11 +22,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.CharArrayReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.json.JSONException;
-import org.json.JSONTokener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -52,6 +53,27 @@ class TelegramBotFunctionSlowTest {
   @BeforeEach
   void setUp() {
     bot = new TelegramBotFunction();
+  }
+
+  @DisplayName("Webhook")
+  @Test
+  void webhook() throws IOException {
+    // given
+    var reader = new CharArrayReader("{\"a\":\"b\"}".toCharArray());
+
+    bot = spy(bot);
+
+    when(httpRequest.getMethod()).thenReturn("POST");
+    when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
+    doNothing().when(bot).processRequestBody(isA(Reader.class));
+
+    // when
+    assertDoesNotThrow(() -> bot.service(httpRequest, httpResponse));
+
+    // then
+    verify(httpResponse).setStatusCode(200, "OK");
+    verify(httpResponse).appendHeader(eq("Server"), anyString());
+    verifyNoMoreInteractions(httpResponse);
   }
 
   @DisplayName("HTTP method not allowed")
@@ -89,7 +111,7 @@ class TelegramBotFunctionSlowTest {
 
     when(httpRequest.getMethod()).thenReturn("POST");
     when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
-    doThrow(new JSONException("test exception")).when(bot).processRequest(isA(JSONTokener.class));
+    doThrow(new JSONException("test exception")).when(bot).processRequestBody(isA(Reader.class));
 
     // when
     assertDoesNotThrow(() -> bot.service(httpRequest, httpResponse));

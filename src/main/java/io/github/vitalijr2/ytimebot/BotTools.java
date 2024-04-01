@@ -46,31 +46,31 @@ class BotTools {
   }
 
   static HttpResponse doResponse(@NotNull HttpResponse httpResponse, int statusCode,
-      @NotNull String statusMessage, @Nullable String body) throws IOException {
-    httpResponse.setStatusCode(statusCode, statusMessage);
-    httpResponse.appendHeader(SERVER_HEADER, FULL_VERSION_STRING);
-    if (nonNull(body)) {
-      httpResponse.getWriter().write(body);
+      @NotNull String statusMessage, @Nullable String body) {
+    try {
+      httpResponse.setStatusCode(statusCode, statusMessage);
+      httpResponse.appendHeader(SERVER_HEADER, FULL_VERSION_STRING);
+      if (nonNull(body)) {
+        httpResponse.getWriter().write(body);
+      }
+    } catch (IOException exception) {
+      LOGGER.warn("Could not make HTTP {} response: {}", statusCode, exception.getMessage());
     }
 
     return httpResponse;
   }
 
   static void badMethod(@NotNull HttpResponse httpResponse, String... allowedMethods) {
-    try {
-      doResponse(httpResponse, 405, "Method Not Allowed", HTTP_BAD_METHOD_RESPONSE).getHeaders()
-          .put("Allow", List.of(allowedMethods));
-    } catch (IOException exception) {
-      LOGGER.warn("Could not make HTTP 405 response: {}", exception.getMessage());
-    }
+    doResponse(httpResponse, 405, "Method Not Allowed", HTTP_BAD_METHOD_RESPONSE).getHeaders()
+        .put("Allow", List.of(allowedMethods));
   }
 
   static void internalError(@NotNull HttpResponse httpResponse) {
-    try {
-      doResponse(httpResponse, 500, "Internal Server Error", null);
-    } catch (IOException exception) {
-      LOGGER.warn("Could not make HTTP 500 response: {}", exception.getMessage());
-    }
+    doResponse(httpResponse, 500, "Internal Server Error", null);
+  }
+
+  static void ok(HttpResponse httpResponse) {
+    doResponse(httpResponse, 200, "OK", null);
   }
 
   static boolean viaBot(JSONObject message) {

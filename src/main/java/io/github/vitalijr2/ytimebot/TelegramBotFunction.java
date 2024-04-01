@@ -2,12 +2,14 @@ package io.github.vitalijr2.ytimebot;
 
 import static io.github.vitalijr2.ytimebot.BotTools.badMethod;
 import static io.github.vitalijr2.ytimebot.BotTools.internalError;
+import static io.github.vitalijr2.ytimebot.BotTools.ok;
 import static io.github.vitalijr2.ytimebot.BotTools.viaBot;
 
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
 import java.io.IOException;
+import java.io.Reader;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,14 +24,12 @@ public class TelegramBotFunction implements HttpFunction {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
-  public void service(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+  public void service(HttpRequest httpRequest, HttpResponse httpResponse) {
     if (HTTP_POST_METHOD.equals(httpRequest.getMethod())) {
       try {
-        var jsonTokener = new JSONTokener(httpRequest.getReader());
-
-        processRequest(jsonTokener);
-        jsonTokener.close();
-      } catch (JSONException exception) {
+        processRequestBody(httpRequest.getReader());
+        ok(httpResponse);
+      } catch (IOException | JSONException exception) {
         logger.warn("Could not parse request body: {}", exception.getMessage());
         internalError(httpResponse);
       }
@@ -41,14 +41,12 @@ public class TelegramBotFunction implements HttpFunction {
   }
 
   @VisibleForTesting
-  void processRequest(JSONTokener jsonTokener) {
-    var telegramRequest = new JSONObject(jsonTokener);
+  void processRequestBody(Reader requestBodyReader) {
+    var telegramRequest = new JSONObject(new JSONTokener(requestBodyReader));
 
     if (viaBot(telegramRequest)) {
 
     }
-
-
   }
 
 }
