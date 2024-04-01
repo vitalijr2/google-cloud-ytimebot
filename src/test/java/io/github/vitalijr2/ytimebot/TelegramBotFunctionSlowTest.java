@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,16 +56,21 @@ class TelegramBotFunctionSlowTest {
   }
 
   @DisplayName("Webhook")
-  @Test
-  void webhook() throws IOException {
+  @ParameterizedTest(name = "{0}")
+  @CsvSource(value = {"message|{\"message\":{\"text\":\"test message\"}}|true",
+      "via bot|{\"message\":{\"text\":\"test message\",\"via_bot\":{\"id\":12345}}}|false",
+      "inline query|{\"inline_query\":{\"query\":\"test query\"}}|true"}, delimiterString = "|")
+  void webhook(String title, String requestBody, boolean hasBody) throws IOException {
     // given
-    var reader = new CharArrayReader("{\"a\":\"b\"}".toCharArray());
+    var reader = new CharArrayReader(requestBody.toCharArray());
 
-    bot = spy(bot);
+    //bot = spy(bot);
 
     when(httpRequest.getMethod()).thenReturn("POST");
     when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
-    doNothing().when(bot).processRequestBody(isA(Reader.class));
+    if (hasBody) {
+      when(httpResponse.getWriter()).thenReturn(writer);
+    }
 
     // when
     assertDoesNotThrow(() -> bot.service(httpRequest, httpResponse));
@@ -73,11 +78,15 @@ class TelegramBotFunctionSlowTest {
     // then
     verify(httpResponse).setStatusCode(200, "OK");
     verify(httpResponse).appendHeader(eq("Server"), anyString());
+    if (hasBody) {
+      verify(httpResponse).getWriter();
+      verify(writer).write(anyString());
+    }
     verifyNoMoreInteractions(httpResponse);
   }
 
   @DisplayName("HTTP method not allowed")
-  @ParameterizedTest
+  @ParameterizedTest(name = "{0}")
   @ValueSource(strings = {"GET", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"})
   void methodNotAllowed(String methodName) throws IOException {
     // given

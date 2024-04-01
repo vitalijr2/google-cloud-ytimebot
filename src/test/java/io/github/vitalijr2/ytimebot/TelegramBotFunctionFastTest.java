@@ -62,7 +62,7 @@ class TelegramBotFunctionFastTest {
   }
 
   @DisplayName("HTTP method not allowed")
-  @ParameterizedTest
+  @ParameterizedTest(name = "{0}")
   @ValueSource(strings = {"GET", "HEAD", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"})
   void methodNotAllowed(String methodName) throws IOException {
     try (var botTools = mockStatic(BotTools.class)) {

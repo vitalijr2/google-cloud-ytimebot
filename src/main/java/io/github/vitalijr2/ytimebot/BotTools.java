@@ -70,11 +70,15 @@ class BotTools {
   }
 
   static void ok(HttpResponse httpResponse) {
-    doResponse(httpResponse, 200, "OK", null);
+    okWithBody(httpResponse, null);
   }
 
-  static boolean viaBot(JSONObject message) {
-    return message.has("via_bot");
+  static void okWithBody(HttpResponse httpResponse, String body) {
+    doResponse(httpResponse, 200, "OK", body);
+  }
+
+  static boolean viaBot(JSONObject update) {
+    return update.has("message") && update.getJSONObject("message").has("via_bot");
   }
 
 }
