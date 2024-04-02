@@ -78,7 +78,15 @@ class BotTools {
   }
 
   static boolean viaBot(JSONObject update) {
-    return update.has("message") && update.getJSONObject("message").has("via_bot");
+    return nonNull(update.optQuery("/message/via_bot"));
+  }
+
+  static boolean isInlineQuery(JSONObject update) {
+    return update.has("inline_query");
+  }
+
+  static boolean isMessage(JSONObject update) {
+    return update.has("message");
   }
 
 }

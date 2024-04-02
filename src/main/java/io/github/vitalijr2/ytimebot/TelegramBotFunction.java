@@ -2,10 +2,11 @@ package io.github.vitalijr2.ytimebot;
 
 import static io.github.vitalijr2.ytimebot.BotTools.badMethod;
 import static io.github.vitalijr2.ytimebot.BotTools.internalError;
+import static io.github.vitalijr2.ytimebot.BotTools.isInlineQuery;
+import static io.github.vitalijr2.ytimebot.BotTools.isMessage;
 import static io.github.vitalijr2.ytimebot.BotTools.ok;
 import static io.github.vitalijr2.ytimebot.BotTools.okWithBody;
 import static io.github.vitalijr2.ytimebot.BotTools.viaBot;
-import static java.util.Optional.empty;
 
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
@@ -13,6 +14,8 @@ import com.google.cloud.functions.HttpResponse;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,14 +47,32 @@ public class TelegramBotFunction implements HttpFunction {
   }
 
   @VisibleForTesting
+  @NotNull
   Optional<String> processRequestBody(Reader requestBodyReader) {
-    var telegramRequest = new JSONObject(new JSONTokener(requestBodyReader));
+    var update = new JSONObject(new JSONTokener(requestBodyReader));
+    var result = Optional.<String>empty();
 
-    if (viaBot(telegramRequest)) {
-      return empty();
+    if (viaBot(update)) {
+      logger.trace("Ignore message of another bot");
+    } else if (isInlineQuery(update)) {
+      result = Optional.ofNullable(processInlineQuery(update));
+    } else if (isMessage(update)) {
+      result = Optional.ofNullable(processMessage(update));
     }
 
-    return Optional.of("test");
+    return result;
+  }
+
+  @VisibleForTesting
+  @Nullable
+  String processInlineQuery(JSONObject update) {
+    return "inline query";
+  }
+
+  @VisibleForTesting
+  @Nullable
+  String processMessage(JSONObject update) {
+    return "message";
   }
 
 }

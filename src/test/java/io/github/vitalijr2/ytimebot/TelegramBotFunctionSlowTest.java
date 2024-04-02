@@ -1,5 +1,6 @@
 package io.github.vitalijr2.ytimebot;
 
+import static java.util.Objects.nonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -9,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -26,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.json.JSONException;
-import org.junit.jupiter.api.BeforeEach;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,28 +51,29 @@ class TelegramBotFunctionSlowTest {
   @Mock
   private BufferedWriter writer;
 
+  @Spy
   private TelegramBotFunction bot;
-
-  @BeforeEach
-  void setUp() {
-    bot = new TelegramBotFunction();
-  }
 
   @DisplayName("Webhook")
   @ParameterizedTest(name = "{0}")
-  @CsvSource(value = {"message|{\"message\":{\"text\":\"test message\"}}|true",
-      "via bot|{\"message\":{\"text\":\"test message\",\"via_bot\":{\"id\":12345}}}|false",
-      "inline query|{\"inline_query\":{\"query\":\"test query\"}}|true"}, delimiterString = "|")
-  void webhook(String title, String requestBody, boolean hasBody) throws IOException {
+  @CsvSource(value = {"message|{\"message\":{\"text\":\"test message\"}}|message|N/A",
+      "via bot|{\"message\":{\"text\":\"test message\",\"via_bot\":{\"id\":12345}}}|N/A|N/A",
+      "inline query|{\"inline_query\":{\"query\":\"test query\"}}|N/A|inline query",
+      "chat member|{\"chat_member\":{\"date\":12345}}||N/A|N/A"}, delimiterString = "|", nullValues = "N/A")
+  void webhook(String title, String requestBody, String messageResponseBody,
+      String inlineQueryResponseBody) throws IOException {
     // given
     var reader = new CharArrayReader(requestBody.toCharArray());
 
-    //bot = spy(bot);
-
     when(httpRequest.getMethod()).thenReturn("POST");
     when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
-    if (hasBody) {
+    if (nonNull(messageResponseBody)) {
       when(httpResponse.getWriter()).thenReturn(writer);
+      doReturn(messageResponseBody).when(bot).processMessage(isA(JSONObject.class));
+    }
+    if (nonNull(inlineQueryResponseBody)) {
+      when(httpResponse.getWriter()).thenReturn(writer);
+      doReturn(inlineQueryResponseBody).when(bot).processInlineQuery(isA(JSONObject.class));
     }
 
     // when
@@ -78,7 +82,7 @@ class TelegramBotFunctionSlowTest {
     // then
     verify(httpResponse).setStatusCode(200, "OK");
     verify(httpResponse).appendHeader(eq("Server"), anyString());
-    if (hasBody) {
+    if (nonNull(messageResponseBody) || nonNull(inlineQueryResponseBody)) {
       verify(httpResponse).getWriter();
       verify(writer).write(anyString());
     }
@@ -115,8 +119,6 @@ class TelegramBotFunctionSlowTest {
   void requestBody() throws IOException {
     // given
     var reader = new CharArrayReader("{\"a\":\"b\"}".toCharArray());
-
-    bot = spy(bot);
 
     when(httpRequest.getMethod()).thenReturn("POST");
     when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
