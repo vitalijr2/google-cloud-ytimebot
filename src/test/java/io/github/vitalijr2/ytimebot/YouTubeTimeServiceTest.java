@@ -25,10 +25,6 @@ class YouTubeTimeServiceTest {
     service = new YouTubeTimeService();
   }
 
-  @AfterEach
-  void tearDown() {
-  }
-
   @DisplayName("Wrong arguments")
   @ParameterizedTest
   @CsvSource({"https://google.com/,02:01,Not a YouTube video link",
