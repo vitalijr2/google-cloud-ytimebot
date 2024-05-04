@@ -76,7 +76,7 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <release>11</release>
+          <release>${java.version}</release>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
         <version>3.13.0</version>
@@ -295,6 +295,26 @@
       <scope>runtime</scope>
       <version>${slf4j.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>feign-core</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-java11</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-json</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-slf4j</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>${feign.version}</version>
+    </dependency>
     <!-- test -->
     <dependency>
       <artifactId>junit-jupiter-api</artifactId>
@@ -344,6 +364,7 @@
   <modelVersion>4.0.0</modelVersion>
   <name>YouTube Time Bot</name>
   <properties>
+    <feign.version>13.2.1</feign.version>
     <java.version>17</java.version>
     <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <mockito.version>5.11.0</mockito.version>

@@ -1,4 +1,4 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.youtube;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -21,15 +21,14 @@ public class YouTubeTimeService {
         .matches();
   };
 
-
   @NotNull
-  String combineLinkAndTime(@NotNull String locator, @NotNull String time)
+  public String combineLinkAndTime(@NotNull String locator, @NotNull String time)
       throws MalformedURLException {
     return combineLinkAndTime(new URL(locator), time);
   }
 
   @NotNull
-  String combineLinkAndTime(@NotNull URL locator, @NotNull String time)
+  public String combineLinkAndTime(@NotNull URL locator, @NotNull String time)
       throws IllegalArgumentException {
     if (!isVideoLink(locator)) {
       throw new IllegalArgumentException("Not a YouTube video link");
@@ -61,11 +60,11 @@ public class YouTubeTimeService {
     return "https://youtu.be/" + videoId + "?t=" + start;
   }
 
-  boolean isVideoLink(@NotNull String locator) throws MalformedURLException {
+  public boolean isVideoLink(@NotNull String locator) throws MalformedURLException {
     return isVideoLink(new URL(locator));
   }
 
-  boolean isVideoLink(@NotNull URL locator) {
+  public boolean isVideoLink(@NotNull URL locator) {
     boolean result = false;
 
     if (locator.getHost().endsWith("youtube.com")) {
@@ -92,7 +91,7 @@ public class YouTubeTimeService {
     return result;
   }
 
-  boolean isTime(@NotNull String time) {
+  public boolean isTime(@NotNull String time) {
     return time.matches("((\\d+:)?\\d)?\\d:\\d\\d");
   }
 
