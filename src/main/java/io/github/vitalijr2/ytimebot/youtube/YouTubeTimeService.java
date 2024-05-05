@@ -3,6 +3,7 @@ package io.github.vitalijr2.ytimebot.youtube;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import feign.Client;
 import feign.Feign;
 import feign.Logger.Level;
 import feign.Retryer;
@@ -12,10 +13,14 @@ import feign.slf4j.Slf4jLogger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
+import org.json.JSONPointer;
 
 public class YouTubeTimeService {
 
@@ -30,15 +35,52 @@ public class YouTubeTimeService {
   private final YouTubeData youTubeData;
 
   public YouTubeTimeService(@NotNull String locator, @NotNull String key) {
+    this(locator, key, new Http2Client());
+  }
+
+  @VisibleForTesting
+  YouTubeTimeService(@NotNull String locator, @NotNull String key, Client client) {
     if (key.isBlank()) {
       throw new IllegalArgumentException("YouTube Data API key is empty");
     }
     if (locator.isBlank()) {
       throw new IllegalArgumentException("YouTube Data API locator is empty");
     }
-    youTubeData = Feign.builder().client(new Http2Client()).decoder(new JsonDecoder())
+    youTubeData = Feign.builder().client(client).decoder(new JsonDecoder())
         .logger(new Slf4jLogger()).logLevel(Level.BASIC).requestInterceptor(new KeyInterceptor(key))
         .retryer(Retryer.NEVER_RETRY).target(YouTubeData.class, locator);
+  }
+
+  private static Optional<String> getVideoId(@NotNull URL locator) {
+    var result = Optional.<String>empty();
+
+    if (locator.getHost().endsWith("youtube.com")) {
+      if (locator.getPath().equals("/watch") && nonNull(locator.getQuery())) {
+        // youtube.com/watch?v={video ID}
+        result = Arrays.stream(locator.getQuery().split("&")).filter(VIDEO_ID_PARAMETER)
+            .map(parameter -> parameter.split("=")[1]).findAny();
+      } else if (locator.getPath().startsWith("/watch/") || locator.getPath().startsWith("/v/")
+          || locator.getPath().startsWith("/e/") || locator.getPath().startsWith("/embed/")
+          || locator.getPath().startsWith("/live/")) {
+        // youtube.com/watch/{video ID}, youtube.com/v/{video ID},
+        // youtube.com/e/{video ID}, youtube.com/embed/{video ID}
+        // or youtube.com/live/{video ID}
+        var values = locator.getPath().split("/");
+
+        if (3 == values.length && VIDEO_ID_PATTERN.matcher(values[2]).matches()) {
+          result = Optional.of(values[2]);
+        }
+      }
+    } else if (locator.getHost().endsWith("youtu.be")) {
+      // youtu.be/{video ID}
+      var values = locator.getPath().split("/");
+
+      if (2 == values.length && VIDEO_ID_PATTERN.matcher(values[1]).matches()) {
+        result = Optional.of(values[1]);
+      }
+    }
+
+    return result;
   }
 
   @NotNull
@@ -80,8 +122,52 @@ public class YouTubeTimeService {
     return "https://youtu.be/" + videoId + "?t=" + start;
   }
 
-  public VideoData getLinkData(@NotNull String locator) {
-    return null;
+  public VideoData getLinkData(@NotNull String locator, @Nullable String hostLanguage)
+      throws IllegalArgumentException, MalformedURLException {
+    var videoId = getVideoId(new URL(locator));
+    VideoData result;
+
+    if (videoId.isEmpty()) {
+      throw new IllegalArgumentException("Not a YouTube video link");
+    }
+
+    var videos = youTubeData.videos(new VideoParameters(hostLanguage, videoId.get()));
+
+    if (videos.has("error")) {
+      var reasonPointer = new JSONPointer("/error/errors/0/reason");
+
+      result = new VideoData((String) reasonPointer.queryFrom(videos));
+    } else {
+      var video = videos.getJSONArray("items").getJSONObject(0);
+
+      var snippet = video.getJSONObject("snippet");
+
+      var channelTitle = snippet.getString("channelTitle");
+      String description, title;
+
+      if (snippet.has("localized")) {
+        var localized = snippet.getJSONObject("localized");
+
+        description = localized.getString("description");
+        title = localized.getString("title");
+      } else {
+        description = snippet.getString("description");
+        title = snippet.getString("title");
+      }
+
+      var thumbnails = snippet.getJSONObject("thumbnails");
+      var preview = thumbnails.getJSONObject("standard").getString("url");
+      var thumbnail = thumbnails.getJSONObject("default").getString("url");
+
+      var status = video.getJSONObject("status");
+      var privacyStatus = status.getString("privacyStatus");
+      var uploadStatus = status.getString("uploadStatus");
+
+      result = new VideoData(title, description, channelTitle, thumbnail, preview, uploadStatus,
+          privacyStatus);
+    }
+
+    return result;
   }
 
   public boolean isVideoLink(@NotNull String locator) throws MalformedURLException {
@@ -89,30 +175,7 @@ public class YouTubeTimeService {
   }
 
   public boolean isVideoLink(@NotNull URL locator) {
-    boolean result = false;
-
-    if (locator.getHost().endsWith("youtube.com")) {
-      if (locator.getPath().equals("/watch") && nonNull(locator.getQuery())) {
-        // youtube.com/watch?v={video ID}
-        result = Arrays.stream(locator.getQuery().split("&")).anyMatch(VIDEO_ID_PARAMETER);
-      } else if (locator.getPath().startsWith("/watch/") || locator.getPath().startsWith("/v/")
-          || locator.getPath().startsWith("/e/") || locator.getPath().startsWith("/embed/")
-          || locator.getPath().startsWith("/live/")) {
-        // youtube.com/watch/{video ID}, youtube.com/v/{video ID},
-        // youtube.com/e/{video ID}, youtube.com/embed/{video ID}
-        // or youtube.com/live/{video ID}
-        var values = locator.getPath().split("/");
-
-        result = 3 == values.length && VIDEO_ID_PATTERN.matcher(values[2]).matches();
-      }
-    } else if (locator.getHost().endsWith("youtu.be")) {
-      // youtu.be/{video ID}
-      var values = locator.getPath().split("/");
-
-      result = 2 == values.length && VIDEO_ID_PATTERN.matcher(values[1]).matches();
-    }
-
-    return result;
+    return getVideoId(locator).isPresent();
   }
 
   public boolean isTime(@NotNull String time) {

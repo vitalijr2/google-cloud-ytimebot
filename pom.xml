@@ -362,6 +362,11 @@
       <scope>test</scope>
       <version>2.0.0</version>
     </dependency>
+    <dependency>
+      <artifactId>feign-mock</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>${feign.version}</version>
+    </dependency>
   </dependencies>
   <description>YouTube Time Bot (ytimebot), Google Cloud Function</description>
   <groupId>io.vitalijr2.ytimebot</groupId>
