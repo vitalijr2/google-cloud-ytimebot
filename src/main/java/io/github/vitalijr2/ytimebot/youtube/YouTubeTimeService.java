@@ -143,7 +143,8 @@ public class YouTubeTimeService {
       var snippet = video.getJSONObject("snippet");
 
       var channelTitle = snippet.getString("channelTitle");
-      String description, title;
+      String description;
+      String title;
 
       if (snippet.has("localized")) {
         var localized = snippet.getJSONObject("localized");
