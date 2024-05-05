@@ -155,6 +155,10 @@
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
+          <classpathDependencyExcludes>
+            <classpathDependencyExclude>com.ocarlsen.test:mock-slf4j-impl
+            </classpathDependencyExclude>
+          </classpathDependencyExcludes>
           <forkCount>1</forkCount>
           <includes>
             <include>**/*Test.java</include>

@@ -3,6 +3,12 @@ package io.github.vitalijr2.ytimebot.youtube;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import feign.Feign;
+import feign.Logger.Level;
+import feign.Retryer;
+import feign.http2client.Http2Client;
+import feign.json.JsonDecoder;
+import feign.slf4j.Slf4jLogger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -20,6 +26,20 @@ public class YouTubeTimeService {
     return 2 == values.length && values[0].equals("v") && VIDEO_ID_PATTERN.matcher(values[1])
         .matches();
   };
+
+  private final YouTubeData youTubeData;
+
+  public YouTubeTimeService(@NotNull String locator, @NotNull String key) {
+    if (key.isBlank()) {
+      throw new IllegalArgumentException("YouTube Data API key is empty");
+    }
+    if (locator.isBlank()) {
+      throw new IllegalArgumentException("YouTube Data API locator is empty");
+    }
+    youTubeData = Feign.builder().client(new Http2Client()).decoder(new JsonDecoder())
+        .logger(new Slf4jLogger()).logLevel(Level.BASIC).requestInterceptor(new KeyInterceptor(key))
+        .retryer(Retryer.NEVER_RETRY).target(YouTubeData.class, locator);
+  }
 
   @NotNull
   public String combineLinkAndTime(@NotNull String locator, @NotNull String time)
@@ -60,6 +80,10 @@ public class YouTubeTimeService {
     return "https://youtu.be/" + videoId + "?t=" + start;
   }
 
+  public VideoData getLinkData(@NotNull String locator) {
+    return null;
+  }
+
   public boolean isVideoLink(@NotNull String locator) throws MalformedURLException {
     return isVideoLink(new URL(locator));
   }
@@ -68,7 +92,7 @@ public class YouTubeTimeService {
     boolean result = false;
 
     if (locator.getHost().endsWith("youtube.com")) {
-      if (locator.getPath().equals("/watch") && !locator.getQuery().isEmpty()) {
+      if (locator.getPath().equals("/watch") && nonNull(locator.getQuery())) {
         // youtube.com/watch?v={video ID}
         result = Arrays.stream(locator.getQuery().split("&")).anyMatch(VIDEO_ID_PARAMETER);
       } else if (locator.getPath().startsWith("/watch/") || locator.getPath().startsWith("/v/")
