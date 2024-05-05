@@ -1,12 +1,12 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.youtube;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.MalformedURLException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -16,13 +16,13 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @Tag("fast")
-class YouTubeTimeServiceTest {
+class YouTubeTimeServiceFastTest {
 
   private YouTubeTimeService service;
 
   @BeforeEach
   void setUp() {
-    service = new YouTubeTimeService();
+    service = new YouTubeTimeService("http://api.youtube.test", "qwerty-xyz");
   }
 
   @DisplayName("Wrong arguments")
@@ -89,6 +89,19 @@ class YouTubeTimeServiceTest {
     assertFalse(service.isVideoLink(value));
   }
 
+  // Just to increase coverage and avoid users' mistypings
+  @DisplayName("Bad YouTube links")
+  @ParameterizedTest
+  @ValueSource(strings = {"https://youtube.com/watch", "https://youtube.com/watch/bad/path",
+      "https://youtube.com/v/bad/path", "https://youtube.com/watch/bad$id",
+      "https://youtube.com/v/bad$id", "https://youtu.be/bad/path", "https://youtu.be/bad$id",
+      "https://m.youtube.com/watch?v=bad$id", "https://m.youtube.com/watch?v=bad=id",
+      "https://m.youtube.com/watch?si=MBpBkDSSNzW40qhg"})
+  void badYouTubeLinks(String value) throws MalformedURLException {
+    // when and then
+    assertFalse(service.isVideoLink(value));
+  }
+
   @DisplayName("Not URL")
   @ParameterizedTest
   @EmptySource
@@ -112,6 +125,23 @@ class YouTubeTimeServiceTest {
   void notTime(String value) {
     // when and then
     assertFalse(service.isTime(value));
+  }
+
+  @DisplayName("Required arguments")
+  @ParameterizedTest
+  @EmptySource
+  @ValueSource(strings = "   ")
+  void requiredArguments(String value) {
+    // when
+    var locatorException = assertThrows(IllegalArgumentException.class,
+        () -> new YouTubeTimeService(value, "qwerty-xyz"));
+    var keyException = assertThrows(IllegalArgumentException.class,
+        () -> new YouTubeTimeService("http://api.youtube.test", value));
+
+    // then
+    assertAll("Argument exception",
+        () -> assertTrue(locatorException.getMessage().contains("locator is empty")),
+        () -> assertTrue(keyException.getMessage().contains("key is empty")));
   }
 
 }
