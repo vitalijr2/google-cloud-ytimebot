@@ -1,12 +1,12 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.telegram;
 
-import static io.github.vitalijr2.ytimebot.BotTools.badMethod;
-import static io.github.vitalijr2.ytimebot.BotTools.internalError;
-import static io.github.vitalijr2.ytimebot.BotTools.isInlineQuery;
-import static io.github.vitalijr2.ytimebot.BotTools.isMessage;
-import static io.github.vitalijr2.ytimebot.BotTools.ok;
-import static io.github.vitalijr2.ytimebot.BotTools.okWithBody;
-import static io.github.vitalijr2.ytimebot.BotTools.viaBot;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.badMethod;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.internalError;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.isInlineQuery;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.isMessage;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.ok;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.okWithBody;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.viaBot;
 
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;

@@ -1,4 +1,4 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.telegram;
 
 import static java.util.Objects.nonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
