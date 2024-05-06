@@ -1,19 +1,89 @@
 package io.github.vitalijr2.ytimebot.youtube;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public record VideoParameters(String hl, String id, List<String> part) {
+public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
 
   public VideoParameters {
-    if (isNull(part)) {
-      part = List.of("snippet", "status");
+    if (0 == part.length) {
+      part = new PartNames[]{PartNames.Snippet, PartNames.Status};
     }
   }
 
-  public VideoParameters(String hl, String id) {
-    this(hl, id, null);
+  // See https://developers.google.com/custom-search/docs/xml_results_appendices#interfaceLanguages
+  public enum HostLanguage {
+    Afrikaans("af"), Albanian("sq"), Amharic("am"), Arabic("ar"), Armenian("hy"), Azerbaijani(
+        "az"), Bengali("bn"), Bulgarian("bg"), Burmese("my"), Catalan("ca"), Chinese(
+        "zh"), ChineseSimplified("zh-CN"), ChineseTraditional("zh-TW"), Croatian("hr"), Czech(
+        "cs"), Danish("da"), Dutch("nl"), English("en"), EnglishUK("en-GB"), Estonian(
+        "et"), Filipino("fil"), Finnish("fi"), French("fr"), FrenchCanadian("fr-CA"), Georgian(
+        "ka"), German("de"), Greek("el"), Gujarati("gu"), Hebrew("iw"), Hindi("hi"), Hungarian(
+        "hu"), Icelandic("is"), Indonesian("id"), Italian("it"), Japanese("ja"), Kannada(
+        "kn"), Kazakh("kk"), Khmer("km"), Korean("ko"), Kyrgyz("ky"), Laothian("lo"), Latvian(
+        "lv"), Lithuanian("lt"), Macedonian("mk"), Malay("ms"), Malayam("ml"), Marathi(
+        "mr"), Mongolian("mn"), Nepali("Nepali"), Norwegian("no"), Persian("fa"), Polish(
+        "pl"), Portuguese("pt"), PortugueseBrazil("pt-BR"), PortuguesePortugal("pt-PT"), Punjabi(
+        "pa"), Romanian("ro"), Russian("ru"), Serbian("sr"), SerbianLatin("sr-Latn"), Sinhalese(
+        "si"), Slovak("sk"), Slovenian("sl"), Spanish("es"), SpanishLatinAmerica("es-419"), Swahili(
+        "sw"), Swedish("sv"), Tamil("ta"), Telugu("te"), Thai("th"), Turkish("tr"), Ukrainian(
+        "uk"), Urdu("ur"), Uzbek("uz"), Vietnamese("vi"), Welsh("cy");
+
+
+    private static final Map<String, HostLanguage> REVERSE_LOOKUP_MAP = Arrays.stream(values())
+        .collect(Collectors.toMap(value -> value.toString().toLowerCase(), Function.identity()));
+    final String hl;
+
+    HostLanguage(String hl) {
+      this.hl = hl;
+    }
+
+    static HostLanguage lookup(String hl) {
+      HostLanguage result = null;
+
+      if (nonNull(hl)) {
+        hl = hl.toLowerCase();
+        result = REVERSE_LOOKUP_MAP.get(hl);
+
+        if (isNull(result) && hl.contains("-")) {
+          result = lookup(hl.split("-")[0]);
+        }
+      }
+
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return hl;
+    }
+
+  }
+
+  public enum PartNames {
+
+    ContentDetails("contentDetails"), FileDetails("fileDetails"), Identificator(
+        "id"), LiveStreamingDetails("liveStreamingDetails"), Localizations("localizations"), Player(
+        "player"), ProcessingDetails("processingDetails"), RecordingDetails(
+        "recordingDetails"), Snippet("snippet"), Statistics("statistics"), Status(
+        "status"), Suggestions("suggestions"), TopicDetails("topicDetails");
+
+    final String part;
+
+    PartNames(String part) {
+      this.part = part;
+    }
+
+    @Override
+    public String toString() {
+      return part;
+    }
+
   }
 
 }

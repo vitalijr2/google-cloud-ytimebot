@@ -10,6 +10,7 @@ import feign.Retryer;
 import feign.http2client.Http2Client;
 import feign.json.JsonDecoder;
 import feign.slf4j.Slf4jLogger;
+import io.github.vitalijr2.ytimebot.youtube.VideoParameters.HostLanguage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -131,7 +132,8 @@ public class YouTubeTimeService {
       throw new IllegalArgumentException("Not a YouTube video link");
     }
 
-    var videos = youTubeData.videos(new VideoParameters(hostLanguage, videoId.get()));
+    var videos = youTubeData.videos(
+        new VideoParameters(videoId.get(), HostLanguage.lookup(hostLanguage)));
 
     if (videos.has("error")) {
       var reasonPointer = new JSONPointer("/error/errors/0/reason");
