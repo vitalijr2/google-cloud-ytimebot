@@ -47,8 +47,7 @@ public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
       HostLanguage result = null;
 
       if (nonNull(hl)) {
-        hl = hl.toLowerCase();
-        result = REVERSE_LOOKUP_MAP.get(hl);
+        result = REVERSE_LOOKUP_MAP.get(hl.toLowerCase());
 
         if (isNull(result) && hl.contains("-")) {
           result = lookup(hl.split("-")[0]);
