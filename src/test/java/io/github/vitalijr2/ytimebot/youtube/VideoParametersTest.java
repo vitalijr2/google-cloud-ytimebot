@@ -1,6 +1,5 @@
 package io.github.vitalijr2.ytimebot.youtube;
 
-import static java.util.Objects.isNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsArray.array;
 import static org.hamcrest.object.HasToString.hasToString;
@@ -48,14 +47,15 @@ class VideoParametersTest {
 
   @DisplayName("Lookup a host language")
   @ParameterizedTest(name = "{0}: {1}")
-  @CsvSource(value = {"en-CA,English", "en-GB,EnglishUK", "en-gb,EnglishUK", "pl,Polish",
-      "ro,Romanian", "xx,N/A", "N/A,N/A"}, nullValues = "N/A")
+  @CsvSource(value = {"en-CA,English", " en ,English", "en-GB,EnglishUK", "en-gb,EnglishUK",
+      "pl,Polish", "ro,Romanian", "xx,N/A",
+      "N/A,N/A"}, nullValues = "N/A", ignoreLeadingAndTrailingWhitespace = false)
   void lookupHostLanguage(String hl, HostLanguage expectedValue) {
     // when
     var hostLanguage = HostLanguage.lookup(hl);
 
     // then
-    if (isNull(expectedValue)) {
+    if (null == expectedValue) {
       assertNull(hostLanguage);
     } else {
       assertEquals(expectedValue, hostLanguage);

@@ -1,6 +1,5 @@
 package io.github.vitalijr2.ytimebot.youtube;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import feign.Client;
@@ -10,6 +9,8 @@ import feign.Retryer;
 import feign.http2client.Http2Client;
 import feign.json.JsonDecoder;
 import feign.slf4j.Slf4jLogger;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.PrivacyStatus;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.UploadStatus;
 import io.github.vitalijr2.ytimebot.youtube.VideoParameters.HostLanguage;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -106,7 +107,7 @@ public class YouTubeTimeService {
       Arrays.stream(locator.getQuery().split("&")).filter(VIDEO_ID_PARAMETER).findAny()
           .ifPresent(parameter -> videoId.set(parameter.split("=")[1]));
     }
-    if (isNull(videoId.get())) {
+    if (null == videoId.get()) {
       var parameters = locator.getPath().split("/");
 
       videoId.set(parameters[parameters.length - 1]);
@@ -163,8 +164,8 @@ public class YouTubeTimeService {
       var thumbnail = thumbnails.getJSONObject("default").getString("url");
 
       var status = video.getJSONObject("status");
-      var privacyStatus = status.getString("privacyStatus");
-      var uploadStatus = status.getString("uploadStatus");
+      var privacyStatus = PrivacyStatus.fromString(status.getString("privacyStatus"));
+      var uploadStatus = UploadStatus.fromString(status.getString("uploadStatus"));
 
       result = new VideoData(title, description, channelTitle, thumbnail, preview, uploadStatus,
           privacyStatus);

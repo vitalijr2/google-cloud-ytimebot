@@ -50,7 +50,7 @@ class BotTools {
     try {
       httpResponse.setStatusCode(statusCode, statusMessage);
       httpResponse.appendHeader(SERVER_HEADER, FULL_VERSION_STRING);
-      if (nonNull(body)) {
+      if (null != body) {
         httpResponse.getWriter().write(body);
       }
     } catch (IOException exception) {

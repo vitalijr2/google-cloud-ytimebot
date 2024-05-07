@@ -1,6 +1,5 @@
 package io.github.vitalijr2.ytimebot.telegram;
 
-import static java.util.Objects.nonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -66,11 +65,11 @@ class TelegramBotFunctionSlowTest {
 
     when(httpRequest.getMethod()).thenReturn("POST");
     when(httpRequest.getReader()).thenReturn(new BufferedReader(reader));
-    if (nonNull(messageResponseBody)) {
+    if (null != messageResponseBody) {
       when(httpResponse.getWriter()).thenReturn(writer);
       doReturn(messageResponseBody).when(bot).processMessage(isA(JSONObject.class));
     }
-    if (nonNull(inlineQueryResponseBody)) {
+    if (null != inlineQueryResponseBody) {
       when(httpResponse.getWriter()).thenReturn(writer);
       doReturn(inlineQueryResponseBody).when(bot).processInlineQuery(isA(JSONObject.class));
     }
@@ -81,7 +80,7 @@ class TelegramBotFunctionSlowTest {
     // then
     verify(httpResponse).setStatusCode(200, "OK");
     verify(httpResponse).appendHeader(eq("Server"), anyString());
-    if (nonNull(messageResponseBody) || nonNull(inlineQueryResponseBody)) {
+    if (null != messageResponseBody || null != inlineQueryResponseBody) {
       verify(httpResponse).getWriter();
       verify(writer).write(anyString());
     }

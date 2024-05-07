@@ -1,8 +1,5 @@
 package io.github.vitalijr2.ytimebot.youtube;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -46,10 +43,10 @@ public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
     static HostLanguage lookup(String hl) {
       HostLanguage result = null;
 
-      if (nonNull(hl)) {
-        result = REVERSE_LOOKUP_MAP.get(hl.toLowerCase());
+      if (null != hl) {
+        result = REVERSE_LOOKUP_MAP.get(hl.trim().toLowerCase());
 
-        if (isNull(result) && hl.contains("-")) {
+        if (null == result && hl.contains("-")) {
           result = lookup(hl.split("-")[0]);
         }
       }

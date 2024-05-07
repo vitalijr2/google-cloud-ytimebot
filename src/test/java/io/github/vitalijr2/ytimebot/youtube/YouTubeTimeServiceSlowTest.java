@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import feign.mock.HttpMethod;
 import feign.mock.MockClient;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.PrivacyStatus;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.UploadStatus;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,13 +35,13 @@ class YouTubeTimeServiceSlowTest {
   @DisplayName("Happy path")
   @ParameterizedTest(name = "{6} - {2}")
   @CsvSource({"src/test/resources/localized_happy_path.json,Channel title,Localized description,"
-      + "https://i.ytimg.com/vi/qwerty/sddefault.jpg,public,"
-      + "https://i.ytimg.com/vi/qwerty/default.jpg,Localized title,processed",
+      + "https://i.ytimg.com/vi/qwerty/sddefault.jpg,Public,"
+      + "https://i.ytimg.com/vi/qwerty/default.jpg,Localized title,Processed",
       "src/test/resources/original_happy_path.json,Channel title,Original description,"
-          + "https://i.ytimg.com/vi/qwerty/sddefault.jpg,public,"
-          + "https://i.ytimg.com/vi/qwerty/default.jpg,Original title,processed"})
+          + "https://i.ytimg.com/vi/qwerty/sddefault.jpg,Public,"
+          + "https://i.ytimg.com/vi/qwerty/default.jpg,Original title,Processed"})
   void happyPath(String resourcePath, String channelTitle, String description, String preview,
-      String privacyStatus, String thumbnail, String title, String uploadStatus)
+      PrivacyStatus privacyStatus, String thumbnail, String title, UploadStatus uploadStatus)
       throws IOException {
     // given
     var responseBody = Files.readString(Path.of(resourcePath), ISO_8859_1);
@@ -81,11 +83,11 @@ class YouTubeTimeServiceSlowTest {
         () -> assertEquals("Localized description", videoData.description(), "description"),
         () -> assertEquals("https://i.ytimg.com/vi/qwerty/sddefault.jpg", videoData.preview(),
             "preview"),
-        () -> assertEquals("public", videoData.privacyStatus(), "privacy status"),
+        () -> assertEquals(PrivacyStatus.Public, videoData.privacyStatus(), "privacy status"),
         () -> assertEquals("https://i.ytimg.com/vi/qwerty/default.jpg", videoData.thumbnail(),
             "thumbnail"),
         () -> assertEquals("Localized title", videoData.title(), "title"),
-        () -> assertEquals("processed", videoData.uploadStatus(), "upload status"));
+        () -> assertEquals(UploadStatus.Processed, videoData.uploadStatus(), "upload status"));
   }
 
   @DisplayName("Error")
