@@ -10,6 +10,7 @@ import feign.http2client.Http2Client;
 import feign.json.JsonDecoder;
 import feign.slf4j.Slf4jLogger;
 import io.github.vitalijr2.ytimebot.youtube.VideoData.PrivacyStatus;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.Thumbnail;
 import io.github.vitalijr2.ytimebot.youtube.VideoData.UploadStatus;
 import io.github.vitalijr2.ytimebot.youtube.VideoParameters.HostLanguage;
 import java.net.MalformedURLException;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.json.JSONObject;
 import org.json.JSONPointer;
 
 public class YouTubeTimeService {
@@ -83,6 +85,12 @@ public class YouTubeTimeService {
     }
 
     return result;
+  }
+
+  private static VideoData.Thumbnail getThumbnail(JSONObject thumbnail) {
+    return new Thumbnail(thumbnail.getString("url"),
+        (thumbnail.isNull("height")) ? null : thumbnail.getInt("height"),
+        (thumbnail.isNull("width")) ? null : thumbnail.getInt("width"));
   }
 
   @NotNull
@@ -160,8 +168,8 @@ public class YouTubeTimeService {
       }
 
       var thumbnails = snippet.getJSONObject("thumbnails");
-      var preview = thumbnails.getJSONObject("standard").getString("url");
-      var thumbnail = thumbnails.getJSONObject("default").getString("url");
+      var preview = getThumbnail(thumbnails.getJSONObject("standard"));
+      var thumbnail = getThumbnail(thumbnails.getJSONObject("default"));
 
       var status = video.getJSONObject("status");
       var privacyStatus = PrivacyStatus.fromString(status.getString("privacyStatus"));

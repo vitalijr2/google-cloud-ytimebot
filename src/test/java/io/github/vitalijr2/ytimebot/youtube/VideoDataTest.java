@@ -8,33 +8,42 @@ import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.verify;
 
 import io.github.vitalijr2.ytimebot.youtube.VideoData.PrivacyStatus;
+import io.github.vitalijr2.ytimebot.youtube.VideoData.Thumbnail;
 import io.github.vitalijr2.ytimebot.youtube.VideoData.UploadStatus;
 import java.net.MalformedURLException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 
+@ExtendWith(MockitoExtension.class)
 @Tag("fast")
 class VideoDataTest {
+
+  @Mock
+  private Thumbnail preview;
+  @Mock
+  private Thumbnail thumbnail;
 
   @DisplayName("Good data")
   @Test
   void goodData() throws MalformedURLException {
     // when
-    var goodData = new VideoData("test title", "test description", "test channel title",
-        "http://thumbnail.test/path.jpg", "http://preview.test/path.jpg", UploadStatus.Processed,
-        PrivacyStatus.Public);
+    var goodData = new VideoData("test title", "test description", "test channel title", thumbnail,
+        preview, UploadStatus.Processed, PrivacyStatus.Public);
 
     // then
     assertAll("Good video data", () -> assertNull(goodData.errorReason(), "error reason"),
         () -> assertEquals("test channel title", goodData.channelTitle(), "channel title"),
         () -> assertEquals("test description", goodData.description(), "description"),
-        () -> assertEquals("http://preview.test/path.jpg", goodData.preview(), "preview"),
+        () -> assertEquals(preview, goodData.preview(), "preview"),
         () -> assertEquals(PrivacyStatus.Public, goodData.privacyStatus(), "privacy status"),
-        () -> assertEquals("http://thumbnail.test/path.jpg", goodData.thumbnail(), "thumbnail"),
+        () -> assertEquals(thumbnail, goodData.thumbnail(), "thumbnail"),
         () -> assertEquals("test title", goodData.title(), "title"),
         () -> assertEquals(UploadStatus.Processed, goodData.uploadStatus(), "upload status"));
   }

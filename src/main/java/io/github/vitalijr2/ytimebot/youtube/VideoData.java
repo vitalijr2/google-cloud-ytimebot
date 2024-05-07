@@ -3,12 +3,12 @@ package io.github.vitalijr2.ytimebot.youtube;
 import java.util.regex.Pattern;
 import org.slf4j.LoggerFactory;
 
-public record VideoData(String title, String description, String channelTitle, String thumbnail,
-                        String preview, UploadStatus uploadStatus, PrivacyStatus privacyStatus,
+public record VideoData(String title, String description, String channelTitle, Thumbnail thumbnail,
+                        Thumbnail preview, UploadStatus uploadStatus, PrivacyStatus privacyStatus,
                         String errorReason) {
 
-  public VideoData(String title, String description, String channelTitle, String thumbnail,
-      String preview, UploadStatus uploadStatus, PrivacyStatus privacyStatus) {
+  public VideoData(String title, String description, String channelTitle, Thumbnail thumbnail,
+      Thumbnail preview, UploadStatus uploadStatus, PrivacyStatus privacyStatus) {
     this(title, description, channelTitle, thumbnail, preview, uploadStatus, privacyStatus, null);
   }
 
@@ -56,6 +56,10 @@ public record VideoData(String title, String description, String channelTitle, S
         return null;
       }
     }
+
+  }
+
+  public record Thumbnail(String url, Integer height, Integer width) {
 
   }
 
