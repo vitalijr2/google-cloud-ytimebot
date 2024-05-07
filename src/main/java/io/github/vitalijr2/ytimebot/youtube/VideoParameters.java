@@ -5,6 +5,17 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Request parameters: hl, video id, parts.
+ *
+ * @param id   video ID
+ * @param hl   host language
+ * @param part list of parts, defaults to {@code snippet} and {@code status}
+ * @see <a href="https://developers.google.com/youtube/v3/docs/videos/list#parameters">YouTube Data
+ * API Reference: Video list, Parameters</a>
+ * @see <a href="https://developers.google.com/youtube/v3/docs/videos/list">YouTube Data API
+ * Reference: Video list</a>
+ */
 public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
 
   public VideoParameters {
@@ -13,8 +24,15 @@ public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
     }
   }
 
-  // See https://developers.google.com/custom-search/docs/xml_results_appendices#interfaceLanguages
+  /**
+   * Google host language {@code hl}.
+   *
+   * @see <a
+   * href="https://developers.google.com/custom-search/docs/xml_results_appendices#interfaceLanguages">
+   * Programmable Search Engine Guide: Supported Interface Languages</a>
+   */
   public enum HostLanguage {
+
     Afrikaans("af"), Albanian("sq"), Amharic("am"), Arabic("ar"), Armenian("hy"), Azerbaijani(
         "az"), Bengali("bn"), Bulgarian("bg"), Burmese("my"), Catalan("ca"), Chinese(
         "zh"), ChineseSimplified("zh-CN"), ChineseTraditional("zh-TW"), Croatian("hr"), Czech(
@@ -61,9 +79,15 @@ public record VideoParameters(String id, HostLanguage hl, PartNames... part) {
 
   }
 
+  /**
+   * Part names
+   *
+   * @see <a href="https://developers.google.com/youtube/v3/docs/videos/list#parameters">YouTube
+   * Data API Reference: Video list, Parameters</a>
+   */
   public enum PartNames {
 
-    ContentDetails("contentDetails"), FileDetails("fileDetails"), Identificator(
+    ContentDetails("contentDetails"), FileDetails("fileDetails"), Identifier(
         "id"), LiveStreamingDetails("liveStreamingDetails"), Localizations("localizations"), Player(
         "player"), ProcessingDetails("processingDetails"), RecordingDetails(
         "recordingDetails"), Snippet("snippet"), Statistics("statistics"), Status(

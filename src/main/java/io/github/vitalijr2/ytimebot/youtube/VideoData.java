@@ -1,8 +1,29 @@
 package io.github.vitalijr2.ytimebot.youtube;
 
-import java.util.regex.Pattern;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.regex.Pattern;
+
+/**
+ * Combination of properties of snippet and status.
+ *
+ * @param title         localized or original title
+ * @param description   localized or original description
+ * @param channelTitle  channel title
+ * @param thumbnail     default image: URL, height and width
+ * @param preview       standard image: URL, height and width
+ * @param uploadStatus  upload status
+ * @param privacyStatus privacy status
+ * @param errorReason   error reason code, see <em>Error detail</em> on <a
+ *                      href="https://developers.google.com/youtube/v3/docs/videos/list#errors">YouTube
+ *                      Data API Reference: Video list, Errors</a> and <a
+ *                      href="https://developers.google.com/youtube/v3/docs/errors#general-errors">YouTube
+ *                      Data API Reference: General errors</a>
+ * @see <a href="https://developers.google.com/youtube/v3/docs/videos/list#response">YouTube Data
+ * API Reference: Video list, Response</a>
+ * @see <a href="https://any-api.com/googleapis_com/youtube/docs/videos/youtube_videos_list">Any
+ * API: YouTube Data, Video list</a>
+ */
 public record VideoData(String title, String description, String channelTitle, Thumbnail thumbnail,
                         Thumbnail preview, UploadStatus uploadStatus, PrivacyStatus privacyStatus,
                         String errorReason) {
@@ -16,6 +37,9 @@ public record VideoData(String title, String description, String channelTitle, T
     this(null, null, null, null, null, null, null, errorReason);
   }
 
+  /**
+   * Privacy status.
+   */
   public enum PrivacyStatus {
 
     Private, Public, Unlisted, UnlistedNew;
@@ -30,7 +54,7 @@ public record VideoData(String title, String description, String channelTitle, T
             Pattern.compile("\\b.").matcher(status.trim().toLowerCase().replaceAll("_", " "))
                 .replaceAll(m -> m.group().toUpperCase()).replaceAll("\\s", ""));
       } catch (IllegalArgumentException exception) {
-        LoggerFactory.getLogger(PrivacyStatus.class).warn("Unknown status: {}", status);
+        getLogger(PrivacyStatus.class).warn("Unknown status: {}", status);
 
         return null;
       }
@@ -38,6 +62,9 @@ public record VideoData(String title, String description, String channelTitle, T
 
   }
 
+  /**
+   * Upload status.
+   */
   public enum UploadStatus {
 
     Deleted, Failed, Processed, Rejected, Uploaded;
@@ -51,7 +78,7 @@ public record VideoData(String title, String description, String channelTitle, T
         return UploadStatus.valueOf(Pattern.compile("^.").matcher(status.trim().toLowerCase())
             .replaceFirst(m -> m.group().toUpperCase()));
       } catch (IllegalArgumentException exception) {
-        LoggerFactory.getLogger(UploadStatus.class).warn("Unknown status: {}", status);
+        getLogger(UploadStatus.class).warn("Unknown status: {}", status);
 
         return null;
       }
@@ -59,6 +86,13 @@ public record VideoData(String title, String description, String channelTitle, T
 
   }
 
+  /**
+   * Thumbnail.
+   *
+   * @param url image URL
+   * @param height height of the thumbnail image, optional
+   * @param width width of the thumbnail image, optional
+   */
   public record Thumbnail(String url, Integer height, Integer width) {
 
   }

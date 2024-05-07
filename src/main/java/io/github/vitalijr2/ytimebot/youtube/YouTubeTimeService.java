@@ -26,8 +26,12 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.json.JSONObject;
 import org.json.JSONPointer;
 
+/**
+ * Validate YouTube link, timestamp, combine link with time, get video data by its ID.
+ */
 public class YouTubeTimeService {
 
+  private static final String API_LOCATOR = "https://youtube.googleapis.com/";
   private static final Pattern VIDEO_ID_PATTERN = Pattern.compile("[-A-Za-z0-9_]+");
   private static final Predicate<String> VIDEO_ID_PARAMETER = parameter -> {
     var values = parameter.split("=");
@@ -38,7 +42,17 @@ public class YouTubeTimeService {
 
   private final YouTubeData youTubeData;
 
-  public YouTubeTimeService(@NotNull String locator, @NotNull String key) {
+  /**
+   * Create a service instance with particular API key.
+   *
+   * @param key API key.
+   */
+  public YouTubeTimeService(@NotNull String key) {
+    this(API_LOCATOR, key);
+  }
+
+  @VisibleForTesting
+  YouTubeTimeService(@NotNull String locator, @NotNull String key) {
     this(locator, key, new Http2Client());
   }
 
@@ -93,12 +107,39 @@ public class YouTubeTimeService {
         (thumbnail.isNull("width")) ? null : thumbnail.getInt("width"));
   }
 
+  /**
+   * Combine YouTube link and start timestamp.
+   *
+   * @param locator YouTube link
+   * @param time    start time
+   * @return combined link
+   * @throws MalformedURLException if the locator is not valid
+   */
+  /**
+   * Combine YouTube link and start timestamp.
+   *
+   * @param locator YouTube link
+   * @param time    start time
+   * @return combined link
+   * @throws IllegalArgumentException if one of parameters is not valid, see
+   *                                  {@link #isVideoLink(String)} and {@link #isTime(String)}
+   * @throws MalformedURLException    if the locator is not valid
+   */
   @NotNull
   public String combineLinkAndTime(@NotNull String locator, @NotNull String time)
-      throws MalformedURLException {
+      throws IllegalArgumentException, MalformedURLException {
     return combineLinkAndTime(new URL(locator), time);
   }
 
+  /**
+   * Combine YouTube link and start timestamp.
+   *
+   * @param locator YouTube link
+   * @param time    start time
+   * @return combined link
+   * @throws IllegalArgumentException if one of parameters is not valid, see
+   *                                  {@link #isVideoLink(URL)} and {@link #isTime(String)}
+   */
   @NotNull
   public String combineLinkAndTime(@NotNull URL locator, @NotNull String time)
       throws IllegalArgumentException {
@@ -132,6 +173,15 @@ public class YouTubeTimeService {
     return "https://youtu.be/" + videoId + "?t=" + start;
   }
 
+  /**
+   * Get video data.
+   *
+   * @param locator      YouTube link
+   * @param hostLanguage host language, optional
+   * @return video data
+   * @throws IllegalArgumentException if the locator is not valid
+   * @throws MalformedURLException    if the locator is not valid
+   */
   public VideoData getLinkData(@NotNull String locator, @Nullable String hostLanguage)
       throws IllegalArgumentException, MalformedURLException {
     var videoId = getVideoId(new URL(locator));
@@ -182,14 +232,35 @@ public class YouTubeTimeService {
     return result;
   }
 
+  /**
+   * Test if a YouTube link is valid video link.
+   *
+   * @param locator YouTube link
+   * @return true if YouTube link is valid video link
+   * @throws MalformedURLException if the locator is not valid
+   */
   public boolean isVideoLink(@NotNull String locator) throws MalformedURLException {
     return isVideoLink(new URL(locator));
   }
 
+  /**
+   * Test if a YouTube link is valid video link.
+   *
+   * @param locator YouTube link
+   * @return true if YouTube link is valid video link
+   */
   public boolean isVideoLink(@NotNull URL locator) {
     return getVideoId(locator).isPresent();
   }
 
+  /**
+   * Test if time is valid.
+   * <p>
+   * This doesn't check boundaries, e.g. {@code 45:67:89} still is valid time.
+   *
+   * @param time time, e.g. {@code 1:23}, {@code 12:34} or {@code 123:56:12}
+   * @return true if time valid.
+   */
   public boolean isTime(@NotNull String time) {
     return time.matches("((\\d+:)?\\d)?\\d:\\d\\d");
   }

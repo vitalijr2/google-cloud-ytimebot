@@ -37,7 +37,7 @@ class VideoParametersTest {
   void regularParts() {
     // when
     var videoParameters = new VideoParameters("8nKt3LOx7nA", HostLanguage.Romanian,
-        PartNames.Identificator);
+        PartNames.Identifier);
 
     // then
     assertAll("Video parameters", () -> assertThat(videoParameters.hl(), hasToString("ro")),

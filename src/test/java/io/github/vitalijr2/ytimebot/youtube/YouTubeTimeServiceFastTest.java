@@ -136,7 +136,7 @@ class YouTubeTimeServiceFastTest {
     var locatorException = assertThrows(IllegalArgumentException.class,
         () -> new YouTubeTimeService(value, "qwerty-xyz"));
     var keyException = assertThrows(IllegalArgumentException.class,
-        () -> new YouTubeTimeService("http://api.youtube.test", value));
+        () -> new YouTubeTimeService(value));
 
     // then
     assertAll("Argument exception",
