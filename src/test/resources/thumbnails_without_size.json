@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "snippet": {
+        "title": "Original title",
+        "description": "Original description",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/qwerty/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/qwerty/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/qwerty/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/qwerty/sddefault.jpg",
+            "width": null,
+            "height": null
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/qwerty/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Channel title"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "public"
+      }
+    }
+  ],
+  "pageInfo": {
+    "totalResults": 1,
+    "resultsPerPage": 1
+  }
+}

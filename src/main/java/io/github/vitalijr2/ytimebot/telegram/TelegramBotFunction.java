@@ -1,12 +1,12 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.telegram;
 
-import static io.github.vitalijr2.ytimebot.BotTools.badMethod;
-import static io.github.vitalijr2.ytimebot.BotTools.internalError;
-import static io.github.vitalijr2.ytimebot.BotTools.isInlineQuery;
-import static io.github.vitalijr2.ytimebot.BotTools.isMessage;
-import static io.github.vitalijr2.ytimebot.BotTools.ok;
-import static io.github.vitalijr2.ytimebot.BotTools.okWithBody;
-import static io.github.vitalijr2.ytimebot.BotTools.viaBot;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.badMethod;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.internalError;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.isInlineQuery;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.isMessage;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.ok;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.okWithBody;
+import static io.github.vitalijr2.ytimebot.telegram.BotTools.viaBot;
 
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
@@ -23,12 +23,25 @@ import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Create a photo message from a link to a YouTube video with a preview and the ability to set the
+ * start of the viewing. You can also replace the localized video title with your own description.
+ */
 public class TelegramBotFunction implements HttpFunction {
 
   private static final String HTTP_POST_METHOD = "POST";
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
+  /**
+   * Get request body and send response back.
+   *
+   * @param httpRequest  Telegram update
+   * @param httpResponse Telegram webhook answer
+   * @see <a href="https://core.telegram.org/bots/api#update">Telegram Bot API: Update</a>
+   * @see <a href="https://core.telegram.org/bots/api#making-requests-when-getting-updates">Telegram
+   * Bot API: Making requests when getting updates</a>
+   */
   @Override
   public void service(HttpRequest httpRequest, HttpResponse httpResponse) {
     if (HTTP_POST_METHOD.equals(httpRequest.getMethod())) {
@@ -46,6 +59,13 @@ public class TelegramBotFunction implements HttpFunction {
     }
   }
 
+  /**
+   * If the Telegram update is a regular message or an inline query, pass it to the appropriate
+   * method: {@link #processInlineQuery(JSONObject)} or {@link #processMessage(JSONObject)}.
+   *
+   * @param requestBodyReader request body
+   * @return webhook answer if available
+   */
   @VisibleForTesting
   @NotNull
   Optional<String> processRequestBody(Reader requestBodyReader) {

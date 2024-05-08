@@ -255,7 +255,7 @@
       <plugin>
         <artifactId>function-maven-plugin</artifactId>
         <configuration>
-          <functionTarget>io.github.vitalijr2.ytimebot.TelegramBotFunction</functionTarget>
+          <functionTarget>io.github.vitalijr2.ytimebot.telegram.TelegramBotFunction</functionTarget>
         </configuration>
         <groupId>com.google.cloud.functions</groupId>
         <version>0.11.0</version>

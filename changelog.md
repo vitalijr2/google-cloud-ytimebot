@@ -7,6 +7,9 @@ to [Semantic Versioning][semver].
 
 ## Unreleased
 
+- Telegram bot implementation.
+- Using of YouTube Data API, videos' list.
+
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 
 [semver]: https://semver.org/spec/v2.0.0.html
