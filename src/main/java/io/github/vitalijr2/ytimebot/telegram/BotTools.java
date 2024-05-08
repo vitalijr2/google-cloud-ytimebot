@@ -1,4 +1,4 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.telegram;
 
 import static java.util.Objects.nonNull;
 
@@ -50,7 +50,7 @@ class BotTools {
     try {
       httpResponse.setStatusCode(statusCode, statusMessage);
       httpResponse.appendHeader(SERVER_HEADER, FULL_VERSION_STRING);
-      if (nonNull(body)) {
+      if (null != body) {
         httpResponse.getWriter().write(body);
       }
     } catch (IOException exception) {

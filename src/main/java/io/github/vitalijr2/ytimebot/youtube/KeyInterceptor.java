@@ -3,7 +3,13 @@ package io.github.vitalijr2.ytimebot.youtube;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
-public class KeyInterceptor implements RequestInterceptor {
+/**
+ * Add API key to query parameters.
+ *
+ * @see <a href="https://developers.google.com/youtube/registering_an_application">Obtaining
+ * authorization credentials</a>
+ */
+class KeyInterceptor implements RequestInterceptor {
 
   private static final String KEY = "key";
 

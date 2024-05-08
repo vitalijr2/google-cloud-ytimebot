@@ -1,4 +1,4 @@
-package io.github.vitalijr2.ytimebot;
+package io.github.vitalijr2.ytimebot.telegram;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
