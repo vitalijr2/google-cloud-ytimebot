@@ -64,7 +64,7 @@ jobs:
         with:
           name: tests-and-target
           path: target
-      - name: Run codacy-coverage-reporter
+      - name: Run Codacy Coverage Reporter
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           coverage-reports: target/site/jacoco/jacoco.xml
