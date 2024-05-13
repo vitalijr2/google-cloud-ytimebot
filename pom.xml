@@ -1,18 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.vitalijr2.ytimebot</groupId>
   <artifactId>google-cloud-ytimebot</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <name>YouTube Time Bot</name>
+  <description>YouTube Time Bot (ytimebot), Google Cloud Function</description>
+
+  <properties>
+    <feign.version>13.2.1</feign.version>
+    <java.version>17</java.version>
+    <junit-jupiter.version>5.10.2</junit-jupiter.version>
+    <mockito.version>5.12.0</mockito.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <slf4j.version>2.0.13</slf4j.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>24.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud.functions</groupId>
+      <artifactId>functions-framework-api</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20240303</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-core</artifactId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-java11</artifactId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-json</artifactId>
+      <version>${feign.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-slf4j</artifactId>
+      <version>${feign.version}</version>
+    </dependency>
+    <!-- test -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>2.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.ocarlsen.test</groupId>
+      <artifactId>mock-slf4j-impl</artifactId>
+      <version>2.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-mock</artifactId>
+      <version>${feign.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <defaultGoal>clean verify</defaultGoal>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
         <version>3.3.2</version>
       </plugin>
       <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
         <configuration>
           <rules>
             <requireJavaVersion>
@@ -39,10 +160,24 @@
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.4.1</version>
       </plugin>
       <plugin>
-        <artifactId>flatten-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>tidy-maven-plugin</artifactId>
+        <version>1.3.0</version>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <configuration>
           <flattenMode>ossrh</flattenMode>
         </configuration>
@@ -63,26 +198,26 @@
           </execution>
         </executions>
         <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
         <version>1.6.0</version>
       </plugin>
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
         <configuration>
           <propertiesEncoding>ISO-8859-1</propertiesEncoding>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
       </plugin>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${java.version}</release>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
       </plugin>
       <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <classpathDependencyExcludes>
             <classpathDependencyExclude>org.slf4j:slf4j-jdk14</classpathDependencyExclude>
@@ -92,10 +227,10 @@
           </properties>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
       </plugin>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
             <manifestEntries>
@@ -105,10 +240,10 @@
           </archive>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
         <version>3.4.1</version>
       </plugin>
       <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
         <configuration>
           <createDependencyReducedPom>false</createDependencyReducedPom>
           <filters>
@@ -150,10 +285,10 @@
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.3</version>
       </plugin>
       <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <classpathDependencyExcludes>
             <classpathDependencyExclude>com.ocarlsen.test:mock-slf4j-impl
@@ -177,10 +312,10 @@
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
         <version>3.2.5</version>
       </plugin>
       <plugin>
-        <artifactId>jacoco-maven-plugin</artifactId>
         <executions>
           <execution>
             <configuration>
@@ -250,135 +385,17 @@
           </execution>
         </executions>
         <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.12</version>
       </plugin>
       <plugin>
-        <artifactId>function-maven-plugin</artifactId>
         <configuration>
           <functionTarget>io.github.vitalijr2.ytimebot.telegram.TelegramBotFunction</functionTarget>
         </configuration>
         <groupId>com.google.cloud.functions</groupId>
+        <artifactId>function-maven-plugin</artifactId>
         <version>0.11.0</version>
       </plugin>
     </plugins>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
-  <dependencies>
-    <dependency>
-      <artifactId>annotations</artifactId>
-      <groupId>org.jetbrains</groupId>
-      <scope>provided</scope>
-      <version>24.1.0</version>
-    </dependency>
-    <dependency>
-      <artifactId>functions-framework-api</artifactId>
-      <groupId>com.google.cloud.functions</groupId>
-      <version>1.1.0</version>
-    </dependency>
-    <dependency>
-      <artifactId>json</artifactId>
-      <groupId>org.json</groupId>
-      <version>20240303</version>
-    </dependency>
-    <dependency>
-      <artifactId>slf4j-api</artifactId>
-      <groupId>org.slf4j</groupId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>slf4j-jdk14</artifactId>
-      <groupId>org.slf4j</groupId>
-      <scope>runtime</scope>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>feign-core</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>${feign.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>feign-java11</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>${feign.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>feign-json</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>${feign.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>feign-slf4j</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>${feign.version}</version>
-    </dependency>
-    <!-- test -->
-    <dependency>
-      <artifactId>junit-jupiter-api</artifactId>
-      <groupId>org.junit.jupiter</groupId>
-      <scope>test</scope>
-      <version>${junit-jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <groupId>org.junit.jupiter</groupId>
-      <scope>test</scope>
-      <version>${junit-jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>junit-jupiter-params</artifactId>
-      <groupId>org.junit.jupiter</groupId>
-      <scope>test</scope>
-      <version>${junit-jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>mockito-core</artifactId>
-      <groupId>org.mockito</groupId>
-      <scope>test</scope>
-      <version>${mockito.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>mockito-junit-jupiter</artifactId>
-      <groupId>org.mockito</groupId>
-      <scope>test</scope>
-      <version>${mockito.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>hamcrest</artifactId>
-      <groupId>org.hamcrest</groupId>
-      <scope>test</scope>
-      <version>2.2</version>
-    </dependency>
-    <dependency>
-      <artifactId>mock-slf4j-impl</artifactId>
-      <groupId>com.ocarlsen.test</groupId>
-      <scope>test</scope>
-      <version>2.0.0</version>
-    </dependency>
-    <dependency>
-      <artifactId>feign-mock</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>${feign.version}</version>
-    </dependency>
-  </dependencies>
-  <description>YouTube Time Bot (ytimebot), Google Cloud Function</description>
-  <groupId>io.vitalijr2.ytimebot</groupId>
-  <modelVersion>4.0.0</modelVersion>
-  <name>YouTube Time Bot</name>
-  <properties>
-    <feign.version>13.2.1</feign.version>
-    <java.version>17</java.version>
-    <junit-jupiter.version>5.10.2</junit-jupiter.version>
-    <mockito.version>5.12.0</mockito.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.13</slf4j.version>
-  </properties>
-  <version>1.0.0-SNAPSHOT</version>
 </project>
